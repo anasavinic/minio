@@ -2,12 +2,11 @@ FROM minio/minio:latest
 
 ENV MINIO_ROOT_USER=admin
 ENV MINIO_ROOT_PASSWORD=admin123
+ENV MINIO_BUCKET=havi
 
-RUN curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
-    && chmod +x mc \
-    && mv mc /usr/bin/mc
+COPY docker-entrypoint.sh /usr/bin/docker-entrypoint.sh
+RUN chmod +x /usr/bin/docker-entrypoint.sh
 
-EXPOSE 9000
-EXPOSE 9001
+EXPOSE 9000 9001
 
-CMD ["server", "/data", "--console-address", ":9001"]
+ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
