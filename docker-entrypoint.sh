@@ -5,9 +5,10 @@ set -e
 minio server /data --console-address ":9001" &
 MINIO_PID=$!
 
-# Esperar o serviço subir
 echo "Aguardando MinIO iniciar..."
-until nc -z 127.0.0.1 9000; do
+
+# Esperar por http://127.0.0.1:9000/minio/health/ready
+until curl -s http://127.0.0.1:9000/minio/health/ready > /dev/null; do
     sleep 1
 done
 
@@ -16,13 +17,13 @@ echo "MinIO iniciado. Configurando bucket..."
 # Configurar mc
 mc alias set localminio http://127.0.0.1:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
 
-# Criar bucket havi
+# Criar o bucket 'havi' se não existir
 mc mb --ignore-existing localminio/havi
 
-# Tornar público (leitura)
+# Tornar o bucket 'havi' público
 mc anonymous set download localminio/havi
 
-echo "Bucket havi configurado como público."
+echo "Bucket 'havi' configurado como público."
 
-# Voltar o MinIO para foreground
+# Trazer MinIO para foreground
 wait $MINIO_PID
